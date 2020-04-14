@@ -1,12 +1,46 @@
 import vtk
 import numpy as np
-import pymongo
 import random
-import os
-import glob
+
+#If data type is polydata
+def random_poly_rotation(input_poly):
+
+    transform = vtk.vtkTransform()
+    transform.RotateX(random.randrange(-30, 30))
+    transform.RotateY(random.randrange(-30, 30))
+    transform.RotateZ(random.randrange(-30, 30))
+    transform.Update()
+
+    transformFilter = vtk.vtkTransformPolyDataFilter()
+    transformFilter.SetInputData(input_poly)
+    transformFilter.SetTransform(transform)
+    transformFilter.Update()
+    output_poly = transformFilter.GetOutput()
+
+    return output_poly
+
+
+def random_poly_scaling(input_poly):
+
+
+    transform = vtk.vtkTransform()
+    scale_rate = random.uniform(0.8, 1.2)
+    # scale_rate=2
+    transform.Scale(scale_rate, scale_rate, scale_rate)
+    transform.Update()
+
+    transformFilter = vtk.vtkTransformPolyDataFilter()
+    transformFilter.SetInputData(input_poly)
+    transformFilter.SetTransform(transform)
+    transformFilter.Update()
+    output_poly = transformFilter.GetOutput()
+    
+
+    return output_poly
 
 
 
+#If data type is list
 def random_rotation(input_batch):
     transform = vtk.vtkTransform()
     # anlge = random.randrange(-180, 180)
