@@ -53,6 +53,24 @@ def random_rotation(input_batch):
 
     return result_batch
 
+def random_scaling(input_batch):
+    transform = vtk.vtkTransform()
+    scale_rate = random.uniform(0.8, 1.2)
+
+    transform.Scale(scale_rate, scale_rate, scale_rate)
+    transform.Update()
+
+    result_batch = []
+    for batch in input_batch :
+        batch = np.array(batch)
+        result = np.array([*map(transform.TransformPoint, batch)])
+        result_batch.append(result)
+
+    return result_batch
+
+
+
+
 def mesh_transform(polydata, rotate_axis, angle=180):
 
     transform = vtk.vtkTransform()
