@@ -36,6 +36,7 @@ def make_actor(polydata):
     actor.SetMapper(mapper)
     actor.GetProperty().SetPointSize(2)
     # actor.GetProperty().SetColor(colors.GetColor3d("Yellow"))
+    # actor.GetProperty().SetColor(color_list[i])
 
     return actor
 
@@ -67,10 +68,8 @@ if __name__=="__main__":
     polydata = vtk.vtkPolyData()
     polydata.SetPoints(Points)
     polydata.SetVerts(Vertices)
-    polydata.Modified()
-
     polydata.GetPointData().SetScalars(Labels)
-    polydata.GetPointData().Modified()
+    polydata.Modified()
 
 
     #Visualize
