@@ -14,7 +14,6 @@ if __name__ == "__main__":
 
     colors = vtk.vtkNamedColors()
 
-
     points = vtk.vtkPoints()
 
     points.InsertNextPoint(0.0, 0.0, 0.0)
@@ -38,7 +37,7 @@ if __name__ == "__main__":
     polygons = vtk.vtkCellArray()
     polygons.InsertNextCell(polygon)
 
-    #Create a PolyData, add the geometry and topology to the polydata
+    #Create a PolyData, add the geometry and topology to the polydatas
     polygonPolyData = vtk.vtkPolyData()
     polygonPolyData.SetPoints(points)
     polygonPolyData.SetPolys(polygons)
