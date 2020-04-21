@@ -13,6 +13,7 @@ iren.SetRenderWindow(renWin)
 if __name__ == "__main__":
 
     colors = vtk.vtkNamedColors()
+    #Colors can be used for actor and renderer
 
     points = vtk.vtkPoints()
 
