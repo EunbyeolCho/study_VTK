@@ -4,7 +4,7 @@ import random
 import os
 import glob
 import math
-
+import pymongo
 
 def CenterPolyData(polydata):
 
@@ -79,33 +79,23 @@ def apply_pca(input_poly):
 def align_polydata(original_polydata):
 
 
-    original_boundingBox = original_polydata.GetBounds()
-    origin_z_idx = np.argmin([original_boundingBox[1]-original_boundingBox[0], original_boundingBox[3]-original_boundingBox[2], original_boundingBox[5]-original_boundingBox[4]]) #2
-    trg_vector = [0,0,0]
-    trg_vector[origin_z_idx] = 1
-
-    #Apply pca
     pca_polydata = apply_pca(original_polydata)
     pca_bounidng_box = pca_polydata.GetBounds()
+    origin_idx = np.argsort([pca_bounidng_box[1]-pca_bounidng_box[0], pca_bounidng_box[3]-pca_bounidng_box[2], pca_bounidng_box[5]-pca_bounidng_box[4]]) #2
+    origin_z_idx = origin_idx[0] # some index
 
-    z_idx = np.argmin([pca_bounidng_box[1]-pca_bounidng_box[0], pca_bounidng_box[3]-pca_bounidng_box[2], pca_bounidng_box[5]-pca_bounidng_box[4]]) #2
     src_vector = [0,0,0]
-    src_vector[z_idx] = 1
+    src_vector[origin_z_idx] = 1
     sum_vector = get_normal(pca_polydata)
 
     if np.dot(sum_vector, src_vector) < 0 :
-        print("=====> The direction of normal vecotr and src vector is inconsistent")
-        src_vector[z_idx] *= -1
+        print("=====> The direction of normal vector and src vector is inconsistent")
+        src_vector[origin_z_idx] *= -1
 
 
     #Align Z : pca_polydata -> polydata_z
-    rotAxis = np.cross(src_vector, trg_vector) ## [-1  0  0]
-    rotAngle = np.arccos(np.dot(src_vector, trg_vector)) * 180 / math.pi #90
-    
-    #Raw data and train data are orthogonal!
-    if rotAngle in [0.0, 180.0]:
-        rotAxis = np.cross(src_vector, [0,1,0])
-        rotAngle = np.arccos(np.dot(src_vector, [0,1,0])) * 180 / math.pi
+    rotAxis = np.cross(src_vector, [0,1,0])
+    rotAngle = np.arccos(np.dot(src_vector, [0,1,0])) * 180 / math.pi
 
     transform = vtk.vtkTransform()
     transform.RotateWXYZ(rotAngle, rotAxis)
@@ -114,12 +104,21 @@ def align_polydata(original_polydata):
     transformFilter.SetTransform(transform)
     transformFilter.Update()
     polydata_z = transformFilter.GetOutput()
-
-
+    polydata_z = CenterPolyData(polydata_z)
 
     #Align XY : polydata_z -> perfect_polydata
-    min_half = polydata_z.GetBounds()[0] * 0.2
-    max_half = polydata_z.GetBounds()[1] * 0.2
+    polydata_z_bounidng_box = polydata_z.GetBounds()
+    temp_idx = np.argsort([polydata_z_bounidng_box[1]-polydata_z_bounidng_box[0],
+                            polydata_z_bounidng_box[3]-polydata_z_bounidng_box[2],
+                            polydata_z_bounidng_box[5]-polydata_z_bounidng_box[4]]) #2
+
+    temp_x_idx = temp_idx[-1] #Longest axis 
+    temp_y_idx = temp_idx[1] #Second longest axis
+
+    xmax_idx = temp_x_idx * 2
+    xmin_idx = xmax_idx + 1
+    min_half = polydata_z.GetBounds()[xmax_idx] * 0.2
+    max_half = polydata_z.GetBounds()[xmin_idx] * 0.2
 
     pointCloud = polydata_z.GetPoints()
     numPoints = pointCloud.GetNumberOfPoints()
@@ -130,16 +129,17 @@ def align_polydata(original_polydata):
     for idx in range(numPoints):
         pos = pointCloud.GetPoint(idx)
         
-        if pos[0] < max_half and pos[0] > min_half:
+        if pos[temp_x_idx] < max_half and pos[temp_x_idx] > min_half:
 
-            if pos[2] > 0:
+            if pos[temp_y_idx] > 0:
                 count_pos +=1
-            elif pos[2] < 0:
+            elif pos[temp_y_idx] < 0:
                 count_neg +=1
             else:
                 pass
 
     if count_pos < count_neg :
+        print("change xy")
         transform = vtk.vtkTransform()
         transform.RotateWXYZ(180, [0,1,0])
         transformFilter = vtk.vtkTransformPolyDataFilter()
@@ -150,6 +150,4 @@ def align_polydata(original_polydata):
 
     else:
         perfect_polydata = polydata_z
-    
-
     return perfect_polydata
