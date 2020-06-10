@@ -20,6 +20,9 @@ pointIds = [face.GetPointId(0), face.GetPointId(1),face.GetPointId(2)]
 # pointId를 이용하여 point 3d coordinate 구하기
 pointPosition = list(polydata.GetPoint(pointId))
 
+#Check if polydata has attributes of gt : If polydata has gt, remove gt
+polydata.GetPointData().RemoveArray('gt')
+pointLabel = polydata.GetPointData().GetScalars("gt")
 
 #Edge
 edgeExtractor = vtk.vtkExtractEdges()

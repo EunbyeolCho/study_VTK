@@ -31,3 +31,14 @@ def read_xml_data(data_id):
     polydata = CenterPolyData(polydata)
 
     return polydata
+
+
+
+def read_vtp(filename):
+
+    vtpReader = vtk.vtkXMLPolyDataReader()
+    vtpReader.SetFileName(filename)
+    vtpReader.Update()
+
+    polydata = vtpReader.GetOutput()
+    return polydata
