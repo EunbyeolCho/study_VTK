@@ -5,6 +5,7 @@ import glob
 import os
 import pymongo
 from bson.objectid import ObjectId
+from reader import read_xml_data
 
 
 def read_vtp(filename):
@@ -44,7 +45,8 @@ def select_one(polydata, label_num):
 
 if __name__ == "__main__" :
 
-    polydata= read_xml_data(ObjectId('5dfb184f9b1fd27720764acc'))
+    # polydata= read_xml_data(ObjectId('5dfb184f9b1fd27720764acc'))
+    polydata = read_vtp('../hardtestset/FF0001 (1).vtp')
     #A tooth labeld # and the others are labeld as background.
     # polydata = select_one(polydata, 4)
 
@@ -94,7 +96,7 @@ if __name__ == "__main__" :
     #Update newPolydata
     newPolyData = vtk.vtkPolyData()
     newPolyData.SetPoints(newPoints)
-    newPolyData.SetPolys(polydata.GetLines())
+    newPolyData.SetPolys(newpolygons)
     newPolyData.Modified()
 
     
