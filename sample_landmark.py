@@ -12,7 +12,9 @@ def read_vtp(filename):
 
 
 def DownsamplePointCloud(polydata):
-
+    """
+    https://lorensen.github.io/VTKExamples/site/Cxx/PolyData/DownsamplePointCloud/
+    """
 
     cleanPolydata = vtk.vtkCleanPolyData()
     cleanPolydata.SetInputData(polydata)
