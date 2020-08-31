@@ -1,3 +1,6 @@
+"""
+https://vtk.org/Wiki/VTK/Examples/Python/Interaction/MouseEvents
+"""
 from __future__ import print_function
 
 import vtk
